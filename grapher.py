@@ -22,8 +22,8 @@ import os
 import fnmatch
 from sys import argv
 
-plt.style.use(['science', 'ieee'])
-plt.rcParams["text.usetex"] = True
+#plt.style.use(['science', 'ieee'])
+#plt.rcParams["text.usetex"] = True
 size = (2.9, 2.5)
 env = argv[1]
 option = 0
@@ -105,8 +105,8 @@ for model in load_models:
 			if fnmatch.fnmatch(file, '*.pk'):
 				print(file)
 				with open(PATH + model2 + '/' + file, 'rb') as handle:
-				    stats = pickle.load(handle)
-				all_stats_list.append(stats)
+					stats = pickle.load(handle)
+					all_stats_list.append(stats)
 				break
 	except:
 		all_stats_list.append(None)
