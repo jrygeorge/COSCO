@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scheduler.GOBI import GOBIScheduler
 
-plt.style.use(['science'])
-plt.rcParams["text.usetex"] = False
+#plt.style.use(['science'])
+#plt.rcParams["text.usetex"] = False
+plt.rcParams['font.family'] = 'DeJavu Serif'
+plt.rcParams['font.serif'] = ['Times New Roman']
 
 class Stats():
 	def __init__(self, Environment, WorkloadModel, Datacenter, Scheduler):
@@ -184,7 +186,7 @@ class Stats():
 			if metric2:
 				axes[hostID].plot(x, metric2_with_interval[hostID])
 			axes[hostID].set_ylabel(obj[0].capitalize()+" "+str(hostID))
-			axes[hostID].grid(b=True, which='both', color='#eeeeee', linestyle='-')
+			axes[hostID].grid(visible=True, which='both', color='#eeeeee', linestyle='-')
 		plt.tight_layout(pad=0)
 		plt.savefig(dirname + '/' + title + '.pdf')
 
@@ -198,7 +200,7 @@ class Stats():
 				[sum(self.metrics[i][metric]) for i in range(len(self.metrics))]
 			axes[i].plot(x, metric_with_interval)
 			axes[i].set_ylabel(metric, fontsize=5)
-			axes[i].grid(b=True, which='both', color='#eeeeee', linestyle='-')
+			axes[i].grid(visible=True, which='both', color='#eeeeee', linestyle='-')
 			res[metric] = sum(metric_with_interval)
 			print("Summation ", metric, " = ", res[metric])
 		print('Average energy (sum energy interval / sum numdestroyed) = ', res['energytotalinterval']/res['numdestroyed'])
@@ -212,7 +214,7 @@ class Stats():
 			metric_with_interval = [self.workloadinfo[i][metric] for i in range(len(self.workloadinfo))]
 			axes[i].plot(x, metric_with_interval)
 			axes[i].set_ylabel(metric)
-			axes[i].grid(b=True, which='both', color='#eeeeee', linestyle='-')
+			axes[i].grid(visible=True, which='both', color='#eeeeee', linestyle='-')
 		plt.tight_layout(pad=0)
 		plt.savefig(dirname + '/' + 'Workload' + '.pdf')
 

@@ -135,6 +135,6 @@ class Task():
 		self.active = data['running']
 		if not self.active:
 			finished_at = parser.parse(data['finished_at']).replace(tzinfo=None)
-			now = datetime.utcnow()
+			now = datetime.now(datetime.UTC)
 			self.totalExecTime -= abs((now - finished_at).total_seconds())
 			self.execError = data['error']
