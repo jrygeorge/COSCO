@@ -69,7 +69,7 @@ opts, args = parser.parse_args()
 
 # Global constants
 NUM_SIM_STEPS = 10
-HOSTS = 3#10 * 5 if opts.env == '' else 10
+HOSTS = 10 * 5 if opts.env == '' else 10
 CONTAINERS = HOSTS
 TOTAL_POWER = 1000
 ROUTER_BW = 10000
