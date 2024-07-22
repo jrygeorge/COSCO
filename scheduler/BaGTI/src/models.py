@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from .constants import *
 from .npn import *
-from .gnn import *
+#from .gnn import *
 
-import dgl
-from dgl.nn.pytorch import GraphConv
+#import dgl
+#from dgl.nn.pytorch import GraphConv
 from sys import argv
 
 class energy_50(nn.Module):
