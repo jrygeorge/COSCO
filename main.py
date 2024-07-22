@@ -36,8 +36,9 @@ from scheduler.RLR_MMT_Random import RLRMMTRScheduler
 from scheduler.Threshold_MC_Random import TMCRScheduler
 from scheduler.Random_Random_Random import RandomScheduler
 from scheduler.HGP_LBFGS import HGPScheduler
-from scheduler.GA import GAScheduler
+#from scheduler.GA import GAScheduler
 from scheduler.GOBI import GOBIScheduler
+"""
 from scheduler.GOBI2 import GOBI2Scheduler
 from scheduler.DRL import DRLScheduler
 from scheduler.DQL import DQLScheduler
@@ -50,6 +51,7 @@ from scheduler.HSOGOBI import HSOGOBIScheduler
 from scheduler.HSOGOBI2 import HSOGOBI2Scheduler
 from scheduler.GGCN import GGCNScheduler
 from scheduler.CRUZE import CRUZEScheduler
+"""
 
 # Auxiliary imports
 from stats.Stats import *
