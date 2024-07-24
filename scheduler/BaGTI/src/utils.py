@@ -9,11 +9,11 @@ import statistics
 import dgl
 
 from sys import argv
-
+"""
 plt.style.use(['science', 'ieee'])
 plt.rcParams["text.usetex"] = True
 plt.rcParams['figure.figsize'] = 2, 1.2
-
+"""
 if 'train' in argv[0] and not os.path.exists(MODEL_SAVE_PATH):
 	os.mkdir(MODEL_SAVE_PATH)
 
