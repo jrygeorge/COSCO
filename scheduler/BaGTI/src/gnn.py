@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
-from torch.nn.modules.rnn import RNNCellBase
+#from torch.nn import RNNCellBase
 import dgl.function as fn
 from .constants import *
 
@@ -67,7 +67,7 @@ class GatedHeteroRGCNLayer(nn.Module):
             feat = self.gru(G.nodes['object'].data['h'], feat)
         return self.activation(feat)
 
-class LayerNormGRUCell(RNNCellBase):
+class LayerNormGRUCell(nn.RNNCellBase):
 
     def __init__(self, input_size, hidden_size, bias=True):
         super(LayerNormGRUCell, self).__init__(input_size, hidden_size, bias, num_chunks=3)
