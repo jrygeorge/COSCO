@@ -100,7 +100,7 @@ class LayerNormGRUCell(nn.RNNBase):
 
     def forward(self, input, hx):
         #self.check_forward_input(input)
-        self.check_forward_args(input, hx)
+        #self.check_forward_args(input, hx)
         return self._LayerNormGRUCell(
             input, hx,
             self.weight_ih, self.weight_hh, self.ln,
