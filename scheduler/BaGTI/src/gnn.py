@@ -67,7 +67,7 @@ class GatedHeteroRGCNLayer(nn.Module):
             feat = self.gru(G.nodes['object'].data['h'], feat)
         return self.activation(feat)
 
-class LayerNormGRUCell(nn.RNNBase):
+class LayerNormGRUCell(nn.RNNCellBase):
 
     def __init__(self, input_size, hidden_size, bias=True):
         super(LayerNormGRUCell, self).__init__(input_size, hidden_size, bias, num_chunks=3)
