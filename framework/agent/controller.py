@@ -63,10 +63,10 @@ class RequestRouter():
                 "Total_Disk": int(float(disk.total/(1024*1024))),
                 "Bandwidth": int(bw),
                 "MIPS": data[0],
-                "Ram_read": parse_io(data[3]),
-                "Ram_write": parse_io(data[4]),
-                "Disk_read": parse_io(data[1]),
-                "Disk_write": parse_io(data[2])}
+                "Ram_read": self.parse_io(data[3]),
+                "Ram_write": self.parse_io(data[4]),
+                "Disk_read": self.parse_io(data[1]),
+                "Disk_write": self.parse_io(data[2])}
         data = json.dumps(payload)
         return rc, data
 
