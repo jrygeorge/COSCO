@@ -33,18 +33,23 @@ def reoptimize(init, graph, data, model, bounds, data_type):
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10)
     iteration = 0; equal = 0; z_old = 100; zs = []
     while iteration < 200:
-        cpu_old = deepcopy(init.data[:,0:-HOSTS]); alloc_old = deepcopy(init.data[:,-HOSTS:])
+        cpu_old = deepcopy(init.data[:,0:-HOSTS])
+        alloc_old = deepcopy(init.data[:,-HOSTS:])
         z = model(graph, data, init)
-        optimizer.zero_grad(); z.backward(); optimizer.step(); scheduler.step()
+        optimizer.zero_grad()
+        z.backward()
+        optimizer.step()
+        scheduler.step()
         init.data = convertToOneHot(init.data, cpu_old, HOSTS)
         equal = equal + 1 if torch.all(alloc_old.eq(init.data[:,-HOSTS:])) else 0
         if equal > 30: break
-        iteration += 1; z_old = z.item()
+        iteration += 1
+        #z_old = z.item()
     init.requires_grad = False 
     return init.data, iteration, model(graph, data, init)
 
 def load_model(filename, model, data_type):
-	optimizer = torch.optim.Adam(model.parameters() , lr=0.001, weight_decay=1e-5) if 'stochastic' not in data_type else torch.optim.AdamW(model.parameters() , lr=0.0001)
+	optimizer = torch.optim.Adam(model.parameters() , lr=0.001, weight_decay=1e-5)
 	file_path1 = MODEL_SAVE_PATH + "/" + filename + "_Trained.ckpt"
 	file_path2 = 'scheduler/BaGTI/' + file_path1
 	file_path = file_path1 if os.path.exists(file_path1) else file_path2
@@ -55,9 +60,11 @@ def load_model(filename, model, data_type):
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 		epoch = checkpoint['epoch']
 		accuracy_list = checkpoint['accuracy_list']
+	"""
 	else:
 		epoch = -1; accuracy_list = []
 		print(color.GREEN+"Creating new model: "+model.name+color.ENDC)
+	"""
 	return model, optimizer, epoch, accuracy_list
 
 
@@ -67,22 +74,22 @@ class XGAIScheduler(Scheduler):
 		dtl = data_type.split('_')
 		data_type = '_'.join(dtl[:-1])+'GNN_'+dtl[-1]
 		self.model = eval(data_type+"()") # energy_latency_GNN50
-		self.model, _, _, _ = load_model(data_type, self.model, data_type)
+		self.model, *_ = load_model(data_type, self.model, data_type)
 		self.data_type = data_type
-		self.hosts = int(data_type.split('_')[-1])
+		self.hosts = int(data_type.split('_')[-1]) #50
 		dtl = data_type.split('_')
-		_, _, self.max_container_ips = eval("load_"+'_'.join(dtl[:-1])+"_data("+dtl[-1]+")")
+		*_ , self.max_container_ips = eval("load_"+'_'.join(dtl[:-1])+"_data("+dtl[-1]+")")
 
 	def generate_decision(self):
-		# Get CPU metric
-		cpu = [host.getCPU()/100 for host in self.env.hostlist]
-		cpu = np.array([cpu]).T
+		# Get max possible CPU for each host
+		cpuH = [host.getCPU()/100 for host in self.env.hostlist]
+		cpuH = np.array([cpu]).T
 		
-		# Get "normalised" CPU metric of container
+		# Get "normalised" CPU metric for each container
 		cpuC = [(c.getApparentIPS()/self.max_container_ips if c else 0) for c in self.env.containerlist]
 		cpuC = np.array([cpuC]).T
 		
-		cpu = np.concatenate((cpu, cpuC), axis=1)
+		cpu = np.concatenate((cpuH, cpuC), axis=1)
 		
 		current_allocation = []
 		previous_allocation = {}
@@ -96,15 +103,19 @@ class XGAIScheduler(Scheduler):
 				# Creating Nodes
 				u.append(container.id) # Container
 				v.append(container.getHostID() + self.hosts) # Hosts
-			else: 
+			else:
+				# If container is not assigned a Host, choose one randomly 
 				current_allocation[i] = np.random.randint(0,len(self.env.hostlist)) 
 			
-		# alloc is the one hotted
+        # Empty One Hot
 		empty = np.zeros((len(self.env.containerlist), len(self.env.hostlist)))
+		# Populating
 		empty[np.arange(current_allocation.size), current_allocation] = 1
 		
-		alloc = empty
+		alloc = empty # allloc is the one hot array
 		
+		#  Generating Bipartite Graph
+		# 2*Hosts as there are n hosts and n containers -> 2n Nodes Total
 		g = dgl.graph((u, v), num_nodes=2*self.hosts)
 		g = dgl.add_self_loop(g)
 		data = torch.Tensor(cpu.reshape(-1, 1))
@@ -113,10 +124,10 @@ class XGAIScheduler(Scheduler):
 		result , *_ = reoptimize(init, g, data, self.model, [], self.data_type)
 		
 		decision = []
-		for cid in prev_alloc:
+		for cid in previous_allocation:
 			one_hot = result[cid, -self.hosts:].tolist()
 			new_host = one_hot.index(max(one_hot))
-			if prev_alloc[cid] != new_host: 
+			if previous_allocation[cid] != new_host: 
 				decision.append((cid, new_host))
 		return decision
 
